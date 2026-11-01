@@ -1,0 +1,109 @@
+data:
+  train_files: ../data/rl_train.jsonl
+  val_files: ../data/rl_val.jsonl
+  prompt_key: prompt
+  answer_key: answer
+  image_key: images
+  video_key: videos
+  image_dir: null
+  video_fps: 2.0
+  max_prompt_length: 8192
+  max_response_length: 512
+  rollout_batch_size: 16
+  mini_rollout_batch_size: null
+  val_batch_size: 16
+  format_prompt: null
+  override_chat_template: null
+  shuffle: true
+  seed: 1
+  min_pixels: 65536
+  max_pixels: 524288
+  filter_overlong_prompts: true
+algorithm:
+  adv_estimator: grpo
+  disable_kl: false
+  use_kl_loss: true
+  kl_penalty: low_var_kl
+  kl_coef: 0.01
+  online_filtering: false
+  filter_key: overall
+  filter_low: 0.01
+  filter_high: 0.99
+worker:
+  actor:
+    global_batch_size: 16
+    micro_batch_size_per_device_for_update: 1
+    micro_batch_size_per_device_for_experience: 2
+    max_grad_norm: 1.0
+    padding_free: false
+    dynamic_batching: false
+    ulysses_size: 1
+    model:
+      model_path: ../outputs/policy
+      enable_gradient_checkpointing: true
+      trust_remote_code: false
+      freeze_vision_tower: false
+      lora:
+        rank: 0
+        alpha: 64
+        target_modules: all-linear
+        exclude_modules: .*visual.*
+    optim:
+      lr: 1.0e-06
+      weight_decay: 0.01
+      strategy: adamw
+      lr_warmup_ratio: 0.0
+    fsdp:
+      enable_full_shard: true
+      enable_cpu_offload: false
+      enable_rank0_init: true
+    offload:
+      offload_params: true
+      offload_optimizer: true
+    agentworld_checkpoint: ../outputs/reward_scaffold
+    agentworld_existence_threshold: 0.5
+  rollout:
+    n: 8
+    temperature: 1.0
+    top_p: 1.0
+    limit_images: 6
+    gpu_memory_utilization: 0.6
+    enforce_eager: false
+    enable_chunked_prefill: false
+    tensor_parallel_size: 1
+    max_num_batched_tokens: 8704
+    disable_tqdm: false
+    val_override_config:
+      temperature: 0.6
+      top_p: 0.95
+      n: 1
+  ref:
+    fsdp:
+      enable_full_shard: true
+      enable_cpu_offload: true
+      enable_rank0_init: true
+    offload:
+      offload_params: false
+  reward:
+    reward_function: ./examples/agentworld/reward.py:compute_score
+    skip_special_tokens: false
+trainer:
+  total_epochs: 1
+  max_steps: null
+  project_name: agentworld
+  experiment_name: agentworld_grpo
+  logger:
+  - file
+  nnodes: 1
+  n_gpus_per_node: 4
+  max_try_make_batch: 20
+  val_freq: 100
+  val_before_train: true
+  val_only: false
+  val_generations_to_log: 3
+  save_freq: 100
+  save_limit: 3
+  save_model_only: false
+  save_checkpoint_path: null
+  load_checkpoint_path: null
+  find_last_checkpoint: true

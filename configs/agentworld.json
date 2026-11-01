@@ -1,0 +1,10 @@
+{
+  "num_agents": 20,
+  "num_classes": 10,
+  "geometry_dim": 2048,
+  "routing_dim": 256,
+  "routing_heads": 8,
+  "routing_layers": 3,
+  "box_dim": 8,
+  "horizon": 6
+}
