@@ -1,6 +1,6 @@
 # AgentWorld
 
-**Learning Agent-centric Vision-Language-Action World Models for Autonomous Driving**
+**Learning Agent-centric Vision-Language-Action World Models for Autonomous Driving (NeurIPS 2026)**
 
 AgentWorld introduces agent-centric representations into a multimodal language model for driving perception, reasoning, and planning. Training follows three stages: physical grounding, reasoning SFT, and GRPO. Inference uses only the MLLM backbone.
 
